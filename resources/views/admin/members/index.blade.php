@@ -2,6 +2,42 @@
 
 @section('title', 'Kelola Member & Poin')
 
+@push('styles')
+    <style>
+        .btn-theme-purple {
+            background: var(--primary-medium, #23085A);
+            color: #FFFFFF;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-theme-purple:hover {
+            background: var(--primary-dark, #18003C);
+            transform: translateY(-1px);
+        }
+
+        .action-btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid #E2E8F0;
+            background: #F8FAFC;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.78rem;
+        }
+
+        .action-btn-icon:hover {
+            background: #E2E8F0;
+            color: #0F172A;
+        }
+    </style>
+@endpush
+
 @section('content')
     <div
         style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -2px rgba(0, 0, 0, 0.02);">
@@ -16,10 +52,10 @@
             <form action="{{ route('admin.members.index') }}" method="GET" style="display: flex; gap: 8px;">
                 <div style="position: relative;">
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama atau email..."
-                        style="padding: 9px 14px; border: 1px solid #E2E8F0; border-radius: 8px; font-size: 0.83rem; width: 220px; outline: none; background: #F8FAFC; transition: all 0.2s;">
+                        style="padding: 9px 14px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.83rem; width: 220px; outline: none; background: #F8FAFC;">
                 </div>
-                <button type="submit"
-                    style="padding: 9px 16px; background: #4F46E5; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.83rem; cursor: pointer; transition: background 0.2s;">
+                <button type="submit" class="btn-theme-purple"
+                    style="padding: 9px 16px; border-radius: 8px; font-weight: 700; font-size: 0.83rem; cursor: pointer;">
                     <i class="fa-solid fa-magnifying-glass" style="margin-right: 4px;"></i> Cari
                 </button>
             </form>
@@ -43,7 +79,7 @@
                         <th style="padding: 14px 16px;">Kontak</th>
                         <th style="padding: 14px 16px;">Tier</th>
                         <th style="padding: 14px 16px;">Saldo Poin</th>
-                        <th style="padding: 14px 16px; width: 280px;">Aksi Penyesuaian</th>
+                        <th style="padding: 14px 16px; width: 240px; text-align: center;">Aksi Penyesuaian</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -104,29 +140,22 @@
                             </td>
                             <td style="padding: 14px 16px;">
                                 <form action="{{ route('admin.members.updatePoints', $member->id) }}" method="POST"
-                                    style="display: flex; align-items: center; gap: 6px;">
+                                    style="display: flex; align-items: center; justify-content: center; gap: 6px;">
                                     @csrf
-                                    <div style="position: relative; display: flex; align-items: center;">
-                                        <input type="number" name="points" value="{{ $pts }}"
-                                            id="pts-input-{{ $member->id }}"
-                                            style="width: 85px; padding: 6px 10px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.83rem; font-weight: 700; color: #0F172A; text-align: center; outline: none;"
-                                            onfocus="this.style.borderColor='#4F46E5'"
-                                            onblur="this.style.borderColor='#CBD5E1'">
-                                    </div>
+                                    <input type="number" name="points" value="{{ $pts }}"
+                                        id="pts-input-{{ $member->id }}"
+                                        style="width: 75px; padding: 6px 8px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.83rem; font-weight: 700; color: #0F172A; text-align: center; outline: none;">
 
-                                    <!-- Tombol Cepat Tambah/Kurang -->
-                                    <button type="button"
+                                    <!-- Quick Add +50 -->
+                                    <button type="button" class="action-btn-icon"
                                         onclick="document.getElementById('pts-input-{{ $member->id }}').value = parseInt(document.getElementById('pts-input-{{ $member->id }}').value || 0) + 50"
-                                        title="Tambah 50 Poin"
-                                        style="padding: 6px 8px; background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">
-                                        +50
+                                        title="Tambah 50 Poin">
+                                        <b>+50</b>
                                     </button>
 
-                                    <button type="submit"
-                                        style="padding: 6px 14px; background: #4F46E5; color: white; border: none; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 1px 2px rgba(79, 70, 229, 0.2); transition: all 0.2s;"
-                                        onmouseover="this.style.background='#4338CA'"
-                                        onmouseout="this.style.background='#4F46E5'">
-                                        <i class="fa-solid fa-floppy-disk"></i> Simpan
+                                    <!-- Submit Button (Theme Purple) -->
+                                    <button type="submit" class="action-btn-icon btn-theme-purple" title="Simpan Poin">
+                                        <i class="fa-regular fa-floppy-disk"></i>
                                     </button>
                                 </form>
                             </td>

@@ -63,20 +63,43 @@
             vertical-align: middle;
         }
 
-        .btn-delete {
-            background: #FEF2F2;
-            color: #EF4444;
-            border: 1px solid #FECACA;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 0.75rem;
+        /* TOMBOL AKSI MODERN & CLEAN */
+        .action-btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: 1px solid #E2E8F0;
+            background: #F8FAFC;
+            color: #64748B;
             cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.88rem;
         }
 
-        .btn-delete:hover {
-            background: #EF4444;
+        .action-btn-icon.delete:hover {
+            background: #FEF2F2;
+            color: #EF4444;
+            border-color: #FECACA;
+            transform: translateY(-1px);
+        }
+
+        .btn-search-theme {
+            padding: 10px 20px;
+            background: var(--primary-medium, #23085A);
             color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.83rem;
+            transition: all 0.2s;
+        }
+
+        .btn-search-theme:hover {
+            background: var(--primary-dark, #18003C);
         }
     </style>
 @endpush
@@ -101,8 +124,7 @@
             <input type="text" name="search" value="{{ request('search') }}"
                 placeholder="Cari Nama, Email, atau No. WA Pelanggan..."
                 style="flex: 1; padding: 10px 14px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.83rem; outline: none;">
-            <button type="submit"
-                style="padding: 10px 20px; background: var(--primary-medium); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.83rem;">
+            <button type="submit" class="btn-search-theme">
                 <i class="fa-solid fa-magnifying-glass"></i> Cari
             </button>
         </form>
@@ -115,7 +137,7 @@
                     <th>Pelanggan</th>
                     <th>Kontak (WA/Telp)</th>
                     <th>Tanggal Bergabung</th>
-                    <th style="text-align: center;">Aksi</th>
+                    <th style="text-align: center; width: 100px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -129,11 +151,12 @@
                         <td>{{ $customer->created_at->format('d M Y') }}</td>
                         <td style="text-align: center;">
                             <form action="{{ route('admin.users.destroy', $customer->id) }}" method="POST"
-                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun pelanggan ini?')">
+                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun pelanggan ini?')"
+                                style="display: inline-block;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn-delete">
-                                    <i class="fa-solid fa-trash"></i> Hapus
+                                <button type="submit" class="action-btn-icon delete" title="Hapus Pelanggan">
+                                    <i class="fa-regular fa-trash-can"></i>
                                 </button>
                             </form>
                         </td>

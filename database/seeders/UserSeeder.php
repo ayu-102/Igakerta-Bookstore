@@ -14,7 +14,7 @@ class UserSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'budi@gmail.com'],
             [
-                'name'     => 'Demo Customer',
+                'name'     => 'Budi Jayanato',
                 'role'     => 'customer',
                 'phone'    => '089876543210',
                 'points'   => 0,

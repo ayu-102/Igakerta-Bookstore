@@ -50,10 +50,9 @@ class CustomerAuthController extends Controller
             'role'     => 'customer', // Sesuaikan jika ada kolom role
         ]);
 
-        // Otomatis login setelah registrasi berhasil
-        Auth::login($user);
 
-        return redirect()->route('customer.dashboard')->with('success', 'Pendaftaran berhasil! Selamat datang.');
+
+        return redirect()->route('login')->with('success', 'Pendaftaran berhasil! Silakan login dengan akun Anda.');
     }
     public function login(Request $request)
     {

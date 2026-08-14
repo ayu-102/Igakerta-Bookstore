@@ -467,6 +467,16 @@
         </footer>
     </div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('img').forEach(function(img) {
+                if (img.src && img.src.includes('/storage/images/')) {
+                    img.src = img.src.replace('/storage/images/', '/images/');
+                }
+            });
+        });
+    </script>
+
     @stack('scripts')
 </body>
 
