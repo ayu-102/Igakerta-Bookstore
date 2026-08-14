@@ -546,6 +546,13 @@
             color: #23085A;
             margin-bottom: 2px;
         }
+
+        .book-card-mini .old-price {
+            font-size: 0.65rem;
+            color: #94A3B8;
+            text-decoration: line-through;
+            display: block;
+        }
     </style>
 @endpush
 
@@ -776,7 +783,7 @@
                             <a href="{{ route('catalog.index') }}" class="btn-shop-now">Belanja Sekarang</a>
                         </div>
 
-                        <!-- REKOMENDASI BUKU DINAMIS -->
+                        <!-- REKOMENDASI BUKU DINAMIS DENGAN PERHITUNGAN DISKON -->
                         <div class="card-box">
                             <div class="card-box-header">
                                 <h3 class="card-box-title">Rekomendasi untuk Anda</h3>
@@ -785,13 +792,29 @@
 
                             <div class="recommendation-grid">
                                 @foreach ($recommendedBooks as $book)
+                                    @php
+                                        // Mencegah perbedaan harga dengan kalkulasi diskon
+                                        $hasDiscount = isset($book->discount) && $book->discount > 0;
+                                        $finalPrice = $hasDiscount
+                                            ? $book->price - $book->price * ($book->discount / 100)
+                                            : $book->discount_price ?? $book->price;
+                                    @endphp
                                     <div class="book-card-mini">
                                         <a href="{{ route('books.show', $book->id) }}"
                                             style="text-decoration: none; color: inherit;">
                                             <img src="{{ $book->cover_image ? asset('storage/' . $book->cover_image) : 'https://placehold.co/120x160/23085A/FFFFFF/png?text=Buku' }}"
                                                 alt="{{ $book->title }}">
                                             <h5>{{ $book->title }}</h5>
-                                            <div class="price">Rp {{ number_format($book->price, 0, ',', '.') }}</div>
+
+                                            <div class="price">
+                                                Rp {{ number_format($finalPrice, 0, ',', '.') }}
+                                            </div>
+
+                                            @if ($hasDiscount)
+                                                <span class="old-price">
+                                                    Rp {{ number_format($book->price, 0, ',', '.') }}
+                                                </span>
+                                            @endif
                                         </a>
                                     </div>
                                 @endforeach

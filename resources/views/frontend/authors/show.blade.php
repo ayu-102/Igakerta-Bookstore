@@ -185,7 +185,7 @@
             @endphp
 
             @if (!empty($authorPhoto))
-                <img src="{{ asset('storage/' . $authorPhoto) }}" class="author-profile-avatar-img" alt="{{ $authorName }}">
+                <img src="{{ asset($authorPhoto) }}" class="author-profile-avatar-img" alt="{{ $authorName }}">
             @else
                 <div class="author-profile-avatar-initial">
                     {{ strtoupper(substr($authorName, 0, 1)) }}

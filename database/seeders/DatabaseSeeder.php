@@ -2,33 +2,35 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Database\Seeders\BookStoreSeeder;
+use Illuminate\Support\Facades\DB; // <--- PENTING: Tambahkan ini
 
 class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // 1. Jalankan seeder-seeder utama
+        // 1. Matikan pengecekan Foreign Key sementara
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        // 2. Jalankan semua seeder kamu
         $this->call([
+            AdminUserSeeder::class,
+            UserSeeder::class,
+            PublisherSeeder::class,
+            CategorySeeder::class,
+            AuthorSeeder::class,
             BookStoreSeeder::class,
-            VoucherSeeder::class,
             ArticleSeeder::class,
+            VoucherSeeder::class,
+            PromotionSeeder::class,
+            TestimonialSeeder::class,
         ]);
 
-        // 2. Buat user hanya jika email test@example.com belum ada di database
-        User::firstOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => bcrypt('password'),
-            ]
-        );
+        // 3. Nyalakan kembali pengecekan Foreign Key
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }

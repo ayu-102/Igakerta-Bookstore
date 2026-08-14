@@ -361,8 +361,8 @@
         <div><i class="fa-solid fa-sparkles"></i> Selamat datang di IGAKERTA Book Store</div>
         <div class="topbar-right">
             <a href="{{ route('about') }}"><i class="fa-regular fa-circle-question"></i> Bantuan</a>
-            <a href="{{ route('about') }}"><i class="fa-solid fa-truck-fast"></i> Lacak Pesanan</a>
-            <a href="https://wa.me/6281224567890?text=Halo%20Admin%20IGAKERTA,%20saya%20ingin%20bertanya"
+            <a href="{{ route('customer.orders.index') }}"><i class="fa-solid fa-truck-fast"></i> Lacak Pesanan</a>
+            <a href="https://wa.me/6285124157382?text=Halo%20Admin%20IGAKERTA,%20saya%20ingin%20bertanya"
                 target="_blank"><i class="fa-solid fa-phone"></i> Kontak Kami</a>
             <div style="display: flex; gap: 8px; margin-left: 5px;">
                 <a href="https://facebook.com" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
@@ -633,6 +633,19 @@
 
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- SCRIPT AUTO-FIX PERBAIKAN URL GAMBAR -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Otomatis memperbaiki semua gambar di halaman yang salah memanggil folder /storage/images/
+            document.querySelectorAll('img').forEach(function(img) {
+                if (img.src && img.src.includes('/storage/images/')) {
+                    img.src = img.src.replace('/storage/images/', '/images/');
+                }
+            });
+        });
+    </script>
+
     @stack('scripts')
 </body>
 

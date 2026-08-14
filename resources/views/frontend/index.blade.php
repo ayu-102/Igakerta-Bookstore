@@ -648,7 +648,8 @@
                                 <span class="badge-diskon">-{{ $percent }}%</span>
                             @endif
 
-                            <img src="{{ asset('storage/' . $book->cover_image) }}" alt="{{ $book->title }}">
+                            <!-- Ganti jadi seperti ini (BENAR) -->
+                            <img src="{{ asset($book->cover_image) }}" alt="{{ $book->title }}">
                         </div>
 
                         <h3 class="book-title">{{ $book->title }}</h3>
@@ -812,7 +813,8 @@
                                 <span class="badge-diskon">-{{ $percent }}%</span>
                             @endif
 
-                            <img src="{{ asset('storage/' . $book->cover_image) }}" alt="{{ $book->title }}">
+                            <!-- Ganti jadi seperti ini (BENAR) -->
+                            <img src="{{ asset($book->cover_image) }}" alt="{{ $book->title }}">
                         </div>
 
                         <h3 class="book-title">{{ $book->title }}</h3>
@@ -889,7 +891,7 @@
                         onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#f1f5f9';">
 
                         @if ($authorPhoto)
-                            <img src="{{ asset('storage/' . $authorPhoto) }}" alt="{{ $authorName }}"
+                            <img src="{{ asset($authorPhoto) }}" alt="{{ $authorName }}"
                                 style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; margin: 0 auto 12px auto; display: block;">
                         @else
                             <div

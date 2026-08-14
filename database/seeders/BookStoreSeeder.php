@@ -3,47 +3,41 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Author;
-use App\Models\Testimonial;
+use App\Models\Book;
+use Illuminate\Support\Str;
 
 class BookStoreSeeder extends Seeder
 {
     public function run(): void
     {
-        // Data Dummy Penulis Pilihan
-        Author::create([
-            'name' => 'Dr. Ahmad Fauzi, M.T.',
-            'title' => 'Dosen & Peneliti Teknik',
-            'photo' => null, // Bisa diisi URL/Path gambar nantinya
-            'bio' => 'Penulis aktif buku-buku rekayasa teknologi dan sains terapan.',
-            'is_featured' => true,
-        ]);
+        Book::truncate(); // Bersihkan data buku lama agar ID ter-reset
 
-        Author::create([
-            'name' => 'Prof. Siti Rahmawati',
-            'title' => 'Guru Besar Pendidikan',
-            'photo' => null,
-            'bio' => 'Fokus pada riset kurikulum dan metode pembelajaran modern.',
-            'is_featured' => true,
-        ]);
+        $title = 'Bumi';
 
-        // Data Dummy Kata Pembaca
-        Testimonial::create([
-            'name' => 'Budi Santoso',
-            'role' => 'Mahasiswa Teknik',
-            'avatar' => null,
-            'quote' => 'Buku-buku akademik di sini sangat lengkap dan proses pengiriman cepat!',
-            'rating' => 5,
-            'is_active' => true,
-        ]);
+        Book::create([
+            // Kolom Relasi (Pastikan seeder Category, Author, dan Publisher dijalankan lebih dulu agar ID 1 tersedia)
+            'category_id'      => 1,
+            'author_id'        => 1,
+            'publisher_id'     => 1,
 
-        Testimonial::create([
-            'name' => 'Dewi Lestari',
-            'role' => 'Dosen / Peneliti',
-            'avatar' => null,
-            'quote' => 'Sangat membantu dalam mencari literatur penelitian berkualitas tinggi.',
-            'rating' => 5,
-            'is_active' => true,
+            // Komponen Data Buku
+            'title'            => $title,
+            'slug'             => Str::slug($title),
+            'isbn'             => '978-623-0000-00-1',
+            'publication_year' => '2026',
+            'pages'            => 250,
+            'dimensions'       => '14 x 21 cm',
+            'weight'           => 300, // Misal dalam gram
+            'language'         => 'Bahasa Indonesia',
+            'cover_type'       => 'Soft Cover',
+            'type'             => 'physical', // Sesuaikan jika kamu pakai enum seperti 'physical'/'digital'
+            'file_pdf'         => null,
+            'price'            => 75000,
+            'stock'            => 15,
+            'discount_price'   => 65000, // Harga coret (opsional)
+            'cover_image'      => 'images/cover-1.jpeg',
+            'description'      => 'mengisahkan petualangan tiga remaja usia 15 tahun bernama Raib, Seli, dan Ali yang menjelajahi dunia paralel di luar bumi tempat manusia tinggal',
+            'is_featured'      => true,
         ]);
     }
 }

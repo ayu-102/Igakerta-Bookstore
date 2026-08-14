@@ -281,14 +281,14 @@
                 <!-- Header Card -->
                 <div class="author-card-header">
                     @if (!empty($author->sample_cover))
-                        <img src="{{ asset('storage/' . $author->sample_cover) }}" class="author-cover-preview"
-                            alt="Sample Cover">
+                        <!-- UBAH DI SINI: Hapus 'storage/' . -->
+                        <img src="{{ asset($author->sample_cover) }}" class="author-cover-preview" alt="Sample Cover">
                     @endif
 
                     <div class="author-avatar-wrapper">
                         @if ($authorPhoto)
-                            <img src="{{ asset('storage/' . $authorPhoto) }}" class="author-avatar-img"
-                                alt="{{ $authorName }}">
+                            <!-- UBAH DI SINI: Hapus 'storage/' . -->
+                            <img src="{{ asset($authorPhoto) }}" class="author-avatar-img" alt="{{ $authorName }}">
                         @else
                             <div class="author-avatar-initial">
                                 {{ strtoupper(substr($authorName, 0, 1)) }}
