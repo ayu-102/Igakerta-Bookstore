@@ -1,4 +1,4 @@
-FROM php:8.2-cli
+FROM php:8.3-cli
 
 # Install dependencies yang dibutuhkan
 RUN apt-get update && apt-get install -y \
@@ -22,7 +22,7 @@ WORKDIR /app
 # Copy seluruh file project
 COPY . .
 
-# Install dependencies vendor tanpa dev
+# Install dependencies vendor tanpa dev & abaikan platform requirement sementara
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Set permission storage
