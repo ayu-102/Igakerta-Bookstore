@@ -415,6 +415,13 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('customer.member.index') }}"
+                            class="{{ request()->routeIs('customer.member.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-id-card"></i>
+                            <span>Member & Poin</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ route('customer.orders.index') }}"
                             class="{{ request()->routeIs('customer.orders.*') ? 'active' : '' }}">
                             <i class="fa-regular fa-clipboard"></i>
