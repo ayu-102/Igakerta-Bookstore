@@ -1,0 +1,32 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->integer('points')->default(0)->after('phone');
+        });
+
+        Schema::table('orders', function (Blueprint $table) {
+            $table->integer('points_used')->default(0)->after('discount');
+            $table->decimal('points_discount', 12, 2)->default(0)->after('points_used');
+            $table->integer('points_earned')->default(0)->after('points_discount');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('points');
+        });
+
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn(['points_used', 'points_discount', 'points_earned']);
+        });
+    }
+};
