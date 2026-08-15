@@ -10,6 +10,7 @@ use App\Models\Publisher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
 {
@@ -77,9 +78,9 @@ class BookController extends Controller
         $data['slug'] = Str::slug($request->title) . '-' . Str::random(5);
         $data['is_featured'] = $request->has('is_featured') ? 1 : 0;
 
-        // Jika tipe E-Book, stok diset ke 0 (unlimited/digital)
+        // Jika tipe E-Book, stok diset ke 9999 (unlimited/digital)
         if ($request->type === 'ebook') {
-            $data['stock'] = 9999; // Set stok besar agar tidak dianggap habis oleh frontend
+            $data['stock'] = 9999;
         }
 
         // Upload Cover Image
@@ -131,11 +132,17 @@ class BookController extends Controller
         ]);
 
         $data = $request->all();
-        $data['slug'] = Str::slug($request->title) . '-' . Str::random(5);
         $data['is_featured'] = $request->has('is_featured') ? 1 : 0;
 
+        // Update slug hanya jika judul berubah
+        if ($request->title !== $book->title) {
+            $data['slug'] = Str::slug($request->title) . '-' . Str::random(5);
+        } else {
+            unset($data['slug']);
+        }
+
         if ($request->type === 'ebook') {
-            $data['stock'] = 9999; // Set stok besar agar tidak dianggap habis oleh frontend
+            $data['stock'] = 9999;
         }
 
         // Update Cover
@@ -176,20 +183,37 @@ class BookController extends Controller
 
     public function show($id)
     {
-        // Pastikan relasi 'promotions' dimuat (eager loading)
-        $book = Book::with(['category', 'author', 'publisher', 'promotions' => function ($q) {
-            $q->where('is_active', 1);
+        // Eager load reviews & promosinya yang sedang aktif
+        $book = Book::with(['category', 'author', 'publisher', 'reviews', 'promotions' => function ($query) {
+            $query->where('is_active', true)
+                ->where('start_date', '<=', now())
+                ->where('end_date', '>=', now());
         }])->findOrFail($id);
 
-        // Ambil persen diskon dari promo aktif (jika ada)
-        $activePromo = $book->promotions->first();
-        $discountPercent = $activePromo ? $activePromo->discount_percentage : 0;
+        // Ambil persentase diskon promo jika ada
+        $activePromotion = $book->promotions->first();
+        $discountPercent = 0;
+        if ($activePromotion) {
+            $discountPercent = $activePromotion->pivot->discount_percent
+                ?? $activePromotion->discount_percent
+                ?? 0;
+        }
 
+        // Cek apakah user yang terautentikasi sudah pernah membeli buku ini
+        $hasPurchased = false;
+        if (Auth::check()) {
+            $hasPurchased = \App\Models\OrderItem::whereHas('order', function ($q) {
+                $q->where('user_id', Auth::id())
+                    ->whereIn('status', ['completed', 'success', 'paid']);
+            })->where('book_id', $book->id)->exists();
+        }
+
+        // Ambil rekomendasi buku terkait dalam kategori sama
         $relatedBooks = Book::where('category_id', $book->category_id)
             ->where('id', '!=', $book->id)
-            ->take(6)
+            ->take(4)
             ->get();
 
-        return view('books.show', compact('book', 'discountPercent', 'relatedBooks'));
+        return view('books.show', compact('book', 'discountPercent', 'relatedBooks', 'hasPurchased'));
     }
 }

@@ -649,7 +649,8 @@
                             @endif
 
                             <!-- Ganti jadi seperti ini (BENAR) -->
-                            <img src="{{ asset($book->cover_image) }}" alt="{{ $book->title }}">
+                            <img src="{{ Str::startsWith($book->cover_image, 'http') ? $book->cover_image : asset('storage/' . $book->cover_image) }}"
+                                alt="{{ $book->title }}">
                         </div>
 
                         <h3 class="book-title">{{ $book->title }}</h3>
@@ -814,7 +815,8 @@
                             @endif
 
                             <!-- Ganti jadi seperti ini (BENAR) -->
-                            <img src="{{ asset($book->cover_image) }}" alt="{{ $book->title }}">
+                            <img src="{{ Str::startsWith($book->cover_image, 'http') ? $book->cover_image : asset('storage/' . $book->cover_image) }}"
+                                alt="{{ $book->title }}">
                         </div>
 
                         <h3 class="book-title">{{ $book->title }}</h3>

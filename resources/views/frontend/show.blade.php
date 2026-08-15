@@ -5,6 +5,9 @@
     $authorTitle = is_object($book->author) ? $book->author->title ?? 'Penulis / Kreator' : 'Penulis / Kreator';
     $authorPhoto = is_object($book->author) ? $book->author->photo ?? null : null;
 
+    // Safety fallback jika $hasPurchased tidak dilempar dari controller
+    $hasPurchased = $hasPurchased ?? false;
+
     // Hitung Rating Dinamis
     $totalReviews = $book->reviews_count ?? ($book->reviews ? count($book->reviews) : 0);
     $avgRating = $totalReviews > 0 ? round($book->reviews->avg('rating'), 1) : $book->rating ?? 5.0;
@@ -21,10 +24,13 @@
     $isWishlisted = isset($wishlist[$book->id]);
     $isEbookDefault = request('type') === 'ebook' || $book->type === 'ebook';
 
-    // 1. Ambil Persentase Diskon secara dinamis
+    // 1. Ambil Persentase Diskon secara dinamis dari Promo Aktif
     if (!isset($discountPercent) || $discountPercent == 0) {
-        if ($book->promotions && $book->promotions->where('is_active', 1)->first()) {
-            $discountPercent = $book->promotions->where('is_active', 1)->first()->discount_percentage;
+        $activePromo = $book->promotions ? $book->promotions->where('is_active', 1)->first() : null;
+        if ($activePromo) {
+            $discountPercent =
+                $activePromo->pivot->discount_percent ??
+                ($activePromo->discount_percentage ?? ($activePromo->discount_percent ?? 0));
         } elseif ($book->discount_price && $book->price > 0) {
             $discountPercent = round((($book->price - $book->discount_price) / $book->price) * 100);
         } else {
@@ -34,27 +40,25 @@
 
     // 2. Tentukan Harga Dasar (Sesuai tipe buku di Database)
     if ($book->type === 'ebook') {
-        // Jika buku dari DB sudah bertipe ebook, gunakan harga asli tanpa diskon 60%
         $basePhysicalPrice = $book->price;
         $baseEbookPrice = $book->price;
     } else {
-        // Jika buku bertipe fisik, tentukan varian fisik dan varian ebook-nya (60%)
         $basePhysicalPrice = $book->price;
         $baseEbookPrice = $book->price * 0.6;
     }
 
-    // 3. Hitung Harga Setelah Diskon
+    // 3. Hitung Harga Setelah Diskon Menggunakan round() (Mencegah pecahan misal 114.999 -> 114rb)
     if ($discountPercent > 0) {
-        $pricePhysical = $basePhysicalPrice * (1 - $discountPercent / 100);
-        $strikePhysical = $basePhysicalPrice;
+        $pricePhysical = round($basePhysicalPrice * (1 - $discountPercent / 100));
+        $strikePhysical = round($basePhysicalPrice);
 
-        $priceEbook = $baseEbookPrice * (1 - $discountPercent / 100);
-        $strikeEbook = $baseEbookPrice;
+        $priceEbook = round($baseEbookPrice * (1 - $discountPercent / 100));
+        $strikeEbook = round($baseEbookPrice);
     } else {
-        $pricePhysical = $basePhysicalPrice;
+        $pricePhysical = round($basePhysicalPrice);
         $strikePhysical = 0;
 
-        $priceEbook = $baseEbookPrice;
+        $priceEbook = round($baseEbookPrice);
         $strikeEbook = 0;
     }
 
@@ -729,15 +733,15 @@
                     @endif
                 </div>
 
+                <!-- TAMPILAN SINGLE FORMAT SESUAI TYPE BUKU -->
                 <div class="format-selector">
+                    <span class="format-label">Format Buku</span>
                     @if ($book->type === 'ebook')
-                        <span class="format-label">Format Buku</span>
                         <div class="format-option active" style="cursor: default;">
-                            <span>Ebook (PDF)</span>
+                            <span>E-Book (Digital)</span>
                             <strong>Rp {{ number_format($priceEbook, 0, ',', '.') }}</strong>
                         </div>
                     @else
-                        <span class="format-label">Jenis Buku</span>
                         <div class="format-option active" style="cursor: default;">
                             <span>Buku Cetak</span>
                             <strong>Rp {{ number_format($pricePhysical, 0, ',', '.') }}</strong>
@@ -758,8 +762,9 @@
                     <!-- FORM 1: BELI SEKARANG -->
                     <form action="{{ route('checkout.index') }}" method="GET">
                         <input type="hidden" name="book_id" value="{{ $book->id }}">
+                        <!-- Menggunakan value 'physical' sebagai ganti 'cetak' agar cocok di backend -->
                         <input type="hidden" name="type" class="selected-type-input"
-                            value="{{ $isEbookDefault ? 'ebook' : 'cetak' }}">
+                            value="{{ $isEbookDefault ? 'ebook' : 'physical' }}">
                         <input type="hidden" name="quantity" class="selected-qty-input" value="1">
 
                         <button type="submit" class="btn-buy-now">
@@ -771,7 +776,7 @@
                     <form id="add-to-cart-form" action="{{ route('cart.add', $book->id) }}" method="POST">
                         @csrf
                         <input type="hidden" name="type" class="selected-type-input"
-                            value="{{ $isEbookDefault ? 'ebook' : 'cetak' }}">
+                            value="{{ $isEbookDefault ? 'ebook' : 'physical' }}">
                         <input type="hidden" name="quantity" class="selected-qty-input" value="1">
 
                         <button type="submit" class="btn-add-cart">
@@ -1035,7 +1040,7 @@
             // 3. Update tampilan harga coret (diskon)
             let strikeEl = document.getElementById('display-strike');
             if (strikeEl) {
-                if (strikePrice > 0) {
+                if (strikePrice > price) {
                     strikeEl.innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(strikePrice);
                     strikeEl.style.display = 'inline';
                 } else {
@@ -1043,18 +1048,16 @@
                 }
             }
 
-            // 4. Switch class 'active' pada tombol pilihan varian
-            const optCetak = document.getElementById('opt-cetak');
+            // 4. Switch class 'active' pada tombol pilihan varian format
+            const optPhysical = document.getElementById('opt-physical');
             const optEbook = document.getElementById('opt-ebook');
 
-            if (optCetak && optEbook) {
-                if (type === 'ebook') {
-                    optEbook.classList.add('active');
-                    optCetak.classList.remove('active');
-                } else {
-                    optCetak.classList.add('active');
-                    optEbook.classList.remove('active');
-                }
+            if (type === 'ebook') {
+                if (optEbook) optEbook.classList.add('active');
+                if (optPhysical) optPhysical.classList.remove('active');
+            } else {
+                if (optPhysical) optPhysical.classList.add('active');
+                if (optEbook) optEbook.classList.remove('active');
             }
         }
 
