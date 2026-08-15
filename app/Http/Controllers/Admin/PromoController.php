@@ -120,8 +120,7 @@ class PromoController extends Controller
 
         foreach ($books as $book) {
             $discountAmount = ($book->price * $percentage) / 100;
-            $finalDiscountPrice = $book->price - $discountAmount;
-
+            $finalDiscountPrice = round(($book->price - $discountAmount) / 100) * 100;
             $book->update([
                 'discount_price' => $finalDiscountPrice
             ]);
