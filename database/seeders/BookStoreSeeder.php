@@ -34,7 +34,7 @@ class BookStoreSeeder extends Seeder
             'file_pdf'         => null,
             'price'            => 75000,
             'stock'            => 15,
-            'discount_price'   => 65000, // Harga coret (opsional)
+            'discount_price'   => null, // Harga coret (opsional)
             'cover_image'      => 'images/cover-1.jpeg',
             'description'      => 'mengisahkan petualangan tiga remaja usia 15 tahun bernama Raib, Seli, dan Ali yang menjelajahi dunia paralel di luar bumi tempat manusia tinggal',
             'is_featured'      => true,

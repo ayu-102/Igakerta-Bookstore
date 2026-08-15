@@ -178,7 +178,8 @@ Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('articl
 
 
 // --- 8. ROUTE PAYMENT MIDTRANS ---
-Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle'])->name('midtrans.callback');
+// Menggunakan match(['get', 'post']) untuk mengakomodasi request dari Midtrans & redirect SSL hosting
+Route::match(['get', 'post'], '/midtrans/callback', [MidtransCallbackController::class, 'handle'])->name('midtrans.callback');
 
 Route::middleware('auth')->group(function () {
     Route::get('/payment/snap-token/{order}', [PaymentController::class, 'getSnapToken'])->name('payment.snap-token');

@@ -25,6 +25,9 @@ COPY . .
 # Install dependencies vendor tanpa dev & abaikan platform requirement sementara
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
+# Buat link storage agar gambar dapat diakses publik
+RUN php artisan storage:link
+
 # Set permission storage
 RUN chmod -R 777 storage bootstrap/cache
 

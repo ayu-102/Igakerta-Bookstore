@@ -191,6 +191,14 @@ class CheckoutController extends Controller
             $user = \App\Models\User::find(Auth::id());
             if ($user) {
                 $user->decrement('points', $pointsUsed);
+
+
+                \App\Models\PointHistory::create([
+                    'user_id' => $user->id,
+                    'title'   => 'Penukaran Poin Diskon Pesanan #' . $order->order_number,
+                    'type'    => 'used',
+                    'points'  => $pointsUsed,
+                ]);
             }
         }
 

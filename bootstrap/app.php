@@ -11,8 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Tambahkan baris ini agar Render Proxy terbaca HTTPS
-        $middleware->trustProxies(at: '*');
+        $middleware->validateCsrfTokens(except: [
+            'midtrans/callback',
+            'api/midtrans/callback',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
