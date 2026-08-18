@@ -8,9 +8,29 @@ use Illuminate\Support\Facades\Storage;
 
 class AuthorController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $authors = Author::latest()->paginate(10);
+        $query = Author::query();
+
+        // Filter Search (Nama atau Gelar)
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('title', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Filter Status Featured / Regular
+        if ($request->filled('status')) {
+            if ($request->status === 'featured') {
+                $query->where('is_featured', true);
+            } elseif ($request->status === 'regular') {
+                $query->where('is_featured', false);
+            }
+        }
+
+        $authors = $query->latest()->paginate(10);
+
         return view('admin.authors.index', compact('authors'));
     }
 

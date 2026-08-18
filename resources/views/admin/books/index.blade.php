@@ -285,6 +285,35 @@
         .tab-content.active {
             display: block;
         }
+
+        .toolbar-form {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 16px;
+        }
+
+        .btn-reset {
+            padding: 8px 14px;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748B;
+            background: #F8FAFC;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: #F1F5F9;
+            color: #EF4444;
+            border-color: #FECACA;
+        }
     </style>
 
     <!-- PAGE HEADER -->
@@ -317,24 +346,42 @@
     <!-- TAB 1: DAFTAR BUKU -->
     <div id="tab-buku" class="tab-content active">
         <!-- TOOLBAR & FILTER -->
+        <!-- FILTER & SEARCH BAR -->
         <div class="table-toolbar">
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" class="search-input" placeholder="Cari judul buku, ISBN, atau penulis...">
-            </div>
-            <div class="filter-group">
-                <select class="filter-select">
-                    <option value="">Semua Format</option>
-                    <option value="physical">Buku Fisik</option>
-                    <option value="ebook">E-Book</option>
-                </select>
-                <select class="filter-select">
-                    <option value="">Semua Kategori</option>
-                    <option value="manajemen">Manajemen</option>
-                    <option value="teknologi">Teknologi</option>
-                    <option value="pengembangan-diri">Pengembangan Diri</option>
-                </select>
-            </div>
+            <form action="{{ route('admin.books.index') }}" method="GET" class="toolbar-form">
+                <!-- Input Search -->
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" name="search" value="{{ request('search') }}" class="search-input"
+                        placeholder="Cari judul buku, ISBN, atau penulis..." onchange="this.form.submit()">
+                </div>
+
+                <!-- Filter Dropdown & Reset Button -->
+                <div class="filter-group">
+                    <select name="type" class="filter-select" onchange="this.form.submit()">
+                        <option value="">Semua Format</option>
+                        <option value="physical" {{ request('type') == 'physical' ? 'selected' : '' }}>Buku Fisik</option>
+                        <option value="ebook" {{ request('type') == 'ebook' ? 'selected' : '' }}>E-Book</option>
+                    </select>
+
+                    <select name="category_id" class="filter-select" onchange="this.form.submit()">
+                        <option value="">Semua Kategori</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}"
+                                {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <!-- TOMBOL RESET (Hanya tampil jika ada filter/search yang terisi) -->
+                    @if (request('search') || request('type') || request('category_id'))
+                        <a href="{{ route('admin.books.index') }}" class="btn-reset" title="Reset Filter">
+                            <i class="fa-solid fa-rotate-right"></i> Reset
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
 
         <!-- TABLE BUKU -->

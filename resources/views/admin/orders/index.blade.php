@@ -226,6 +226,28 @@
             color: #FFFFFF;
             border-color: var(--primary-medium, #4F46E5);
         }
+
+        .btn-reset {
+            padding: 10px 16px;
+            border: 1px solid #CBD5E1;
+            border-radius: 8px;
+            font-size: 0.83rem;
+            font-weight: 600;
+            color: #64748B;
+            background: #F8FAFC;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-reset:hover {
+            background: #F1F5F9;
+            color: #EF4444;
+            border-color: #FECACA;
+        }
     </style>
 @endpush
 
@@ -288,17 +310,26 @@
 
     <!-- SEARCH BAR -->
     <div class="filter-card">
-        <form action="{{ route('admin.orders.index') }}" method="GET" style="display: flex; gap: 12px;">
+        <form action="{{ route('admin.orders.index') }}" method="GET" style="display: flex; gap: 12px; width: 100%;">
             @if (request('status'))
                 <input type="hidden" name="status" value="{{ request('status') }}">
             @endif
+
             <input type="text" name="search" value="{{ request('search') }}"
                 placeholder="Cari No. Pesanan, Nama Penerima, atau No. WA..."
                 style="flex: 1; padding: 10px 14px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.83rem; outline: none;">
+
             <button type="submit"
-                style="padding: 10px 20px; background: var(--primary-medium, #4F46E5); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.83rem;">
+                style="padding: 10px 20px; background: var(--primary-medium, #4F46E5); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.83rem; display: inline-flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-magnifying-glass"></i> Cari
             </button>
+
+            @if (request('search'))
+                <a href="{{ route('admin.orders.index', request('status') ? ['status' => request('status')] : []) }}"
+                    class="btn-reset" title="Reset Pencarian">
+                    <i class="fa-solid fa-rotate-right"></i> Reset
+                </a>
+            @endif
         </form>
     </div>
 

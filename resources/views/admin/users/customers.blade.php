@@ -39,6 +39,28 @@
             overflow: hidden;
         }
 
+        .btn-reset-theme {
+            padding: 10px 16px;
+            border: 1px solid #CBD5E1;
+            border-radius: 8px;
+            font-size: 0.83rem;
+            font-weight: 600;
+            color: #64748B;
+            background: #F8FAFC;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-reset-theme:hover {
+            background: #F1F5F9;
+            color: #EF4444;
+            border-color: #FECACA;
+        }
+
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -120,13 +142,20 @@
     @endif
 
     <div class="filter-card">
-        <form action="{{ route('admin.customers.index') }}" method="GET" style="display: flex; gap: 12px;">
+        <form action="{{ route('admin.customers.index') }}" method="GET" style="display: flex; gap: 12px; width: 100%;">
             <input type="text" name="search" value="{{ request('search') }}"
                 placeholder="Cari Nama, Email, atau No. WA Pelanggan..."
                 style="flex: 1; padding: 10px 14px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.83rem; outline: none;">
-            <button type="submit" class="btn-search-theme">
+
+            <button type="submit" class="btn-search-theme" style="display: inline-flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-magnifying-glass"></i> Cari
             </button>
+
+            @if (request('search'))
+                <a href="{{ route('admin.customers.index') }}" class="btn-reset-theme" title="Reset Pencarian">
+                    <i class="fa-solid fa-rotate-right"></i> Reset
+                </a>
+            @endif
         </form>
     </div>
 

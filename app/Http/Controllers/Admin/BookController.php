@@ -26,7 +26,7 @@ class BookController extends Controller
         // Filter Search
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->search . '%')
+                $q->where('title', 'like', '\%' . $request->search . '%')
                     ->orWhere('isbn', 'like', '%' . $request->search . '%');
             });
         }
@@ -38,7 +38,11 @@ class BookController extends Controller
 
         $books = $query->latest()->paginate(10);
 
-        return view('admin.books.index', compact('books'));
+        // AMBIL DATA KATEGORI UNTUK DROPDOWN FILTER
+        $categories = Category::all();
+
+        // PASSING $categories BERSAMA$books KE VIEW
+        return view('admin.books.index', compact('books', 'categories'));
     }
 
     public function create()

@@ -56,7 +56,9 @@
         }
 
         .search-input {
-            flex: 1;
+            width: 100%;
+            /* <--- Tambahkan ini agar memanjang penuh */
+            box-sizing: border-box;
             padding: 9px 14px;
             border: 1px solid #CBD5E1;
             border-radius: 8px;
@@ -200,6 +202,63 @@
             font-size: 0.875rem;
             border: 1px solid #FECACA;
         }
+
+        .search-form {
+            display: flex;
+            width: 100%;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-search {
+            background-color: #2D1558;
+            color: #FFFFFF;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .btn-search:hover {
+            background-color: #1E0D3D;
+        }
+
+        .btn-reset {
+            padding: 9px 14px;
+            border: 1px solid #CBD5E1;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #64748B;
+            background: #F8FAFC;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: #F1F5F9;
+            color: #EF4444;
+            border-color: #FECACA;
+        }
     </style>
 
     <div class="page-container">
@@ -230,15 +289,21 @@
 
         <!-- SEARCH BAR -->
         <div class="search-container">
-            <form action="{{ route('admin.categories.index') }}" method="GET"
-                style="display: flex; width: 100%; gap: 12px;">
-                <input type="text" name="search" class="search-input" placeholder="Cari nama kategori..."
-                    value="{{ request('search') }}">
-                <button type="submit" class="btn-search"><i class="fa-solid fa-magnifying-glass"></i> Cari</button>
-                @if (request('search'))
-                    <a href="{{ route('admin.categories.index') }}" class="btn-search"
-                        style="text-decoration: none; display: flex; align-items: center;">Reset</a>
-                @endif
+            <form action="{{ route('admin.categories.index') }}" method="GET" class="search-form">
+                <div class="search-input-wrapper">
+                    <input type="text" name="search" class="search-input" placeholder="Cari nama kategori..."
+                        value="{{ request('search') }}">
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-search">
+                        <i class="fa-solid fa-magnifying-glass"></i> Cari
+                    </button>
+                    @if (request('search'))
+                        <a href="{{ route('admin.categories.index') }}" class="btn-reset" title="Reset Pencarian">
+                            <i class="fa-solid fa-rotate-right"></i> Reset
+                        </a>
+                    @endif
+                </div>
             </form>
         </div>
 

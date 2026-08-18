@@ -35,6 +35,28 @@
             background: #E2E8F0;
             color: #0F172A;
         }
+
+        .btn-reset-theme {
+            padding: 9px 14px;
+            border: 1px solid #CBD5E1;
+            border-radius: 8px;
+            font-size: 0.83rem;
+            font-weight: 600;
+            color: #64748B;
+            background: #F8FAFC;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-reset-theme:hover {
+            background: #F1F5F9;
+            color: #EF4444;
+            border-color: #FECACA;
+        }
     </style>
 @endpush
 
@@ -49,15 +71,22 @@
                     pelanggan.</p>
             </div>
 
-            <form action="{{ route('admin.members.index') }}" method="GET" style="display: flex; gap: 8px;">
+            <form action="{{ route('admin.members.index') }}" method="GET"
+                style="display: flex; gap: 8px; align-items: center;">
                 <div style="position: relative;">
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama atau email..."
                         style="padding: 9px 14px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.83rem; width: 220px; outline: none; background: #F8FAFC;">
                 </div>
                 <button type="submit" class="btn-theme-purple"
-                    style="padding: 9px 16px; border-radius: 8px; font-weight: 700; font-size: 0.83rem; cursor: pointer;">
-                    <i class="fa-solid fa-magnifying-glass" style="margin-right: 4px;"></i> Cari
+                    style="padding: 9px 16px; border-radius: 8px; font-weight: 700; font-size: 0.83rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                    <i class="fa-solid fa-magnifying-glass"></i> Cari
                 </button>
+
+                @if (request('search'))
+                    <a href="{{ route('admin.members.index') }}" class="btn-reset-theme" title="Reset Pencarian">
+                        <i class="fa-solid fa-rotate-right"></i> Reset
+                    </a>
+                @endif
             </form>
         </div>
 

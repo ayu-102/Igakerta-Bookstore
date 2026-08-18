@@ -338,6 +338,35 @@
         .form-control:focus {
             border-color: #2D1558;
         }
+
+        .filter-form {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 16px;
+        }
+
+        .btn-reset {
+            padding: 8px 14px;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748B;
+            background: #F8FAFC;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: #F1F5F9;
+            color: #EF4444;
+            border-color: #FECACA;
+        }
     </style>
 
     <div class="page-container">
@@ -365,17 +394,30 @@
 
         <!-- SEARCH & FILTER BAR -->
         <div class="filter-card">
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" class="search-input" placeholder="Cari nama atau gelar penulis...">
-            </div>
-            <div>
-                <select class="filter-select">
-                    <option value="">Semua Status</option>
-                    <option value="featured">Penulis Pilihan</option>
-                    <option value="regular">Reguler</option>
-                </select>
-            </div>
+            <form action="{{ route('admin.authors.index') }}" method="GET" class="filter-form">
+                <!-- Input Search -->
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" name="search" value="{{ request('search') }}" class="search-input"
+                        placeholder="Cari nama atau gelar penulis..." onchange="this.form.submit()">
+                </div>
+
+                <!-- Filter Dropdown & Reset Button -->
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <select name="status" class="filter-select" onchange="this.form.submit()">
+                        <option value="">Semua Status</option>
+                        <option value="featured" {{ request('status') == 'featured' ? 'selected' : '' }}>Penulis Pilihan
+                        </option>
+                        <option value="regular" {{ request('status') == 'regular' ? 'selected' : '' }}>Reguler</option>
+                    </select>
+
+                    @if (request('search') || request('status'))
+                        <a href="{{ route('admin.authors.index') }}" class="btn-reset" title="Reset Filter">
+                            <i class="fa-solid fa-rotate-right"></i> Reset
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
 
         <!-- TABLE CARD -->
