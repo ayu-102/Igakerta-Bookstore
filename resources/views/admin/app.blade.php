@@ -413,7 +413,7 @@
 
             <!-- BUTTON KELUAR -->
             <div style="padding-top: 12px; border-top: 1px solid var(--border-color);">
-                <form action="{{ route('admin.logout') }}" method="POST">
+                <form action="{{ route('logout') }}" method="POST">
                     @csrf
                     <button type="submit" class="btn-logout-sidebar">
                         <i class="fa-solid fa-power-off"></i> Keluar

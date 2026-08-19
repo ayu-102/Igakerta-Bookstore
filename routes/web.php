@@ -78,15 +78,7 @@ Route::middleware('auth')->prefix('customer')->name('customer.')->group(function
 });
 
 
-// --- 3. ROUTE AUTH ADMIN ---
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::middleware('guest')->group(function () {
-        Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
-        Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
-    });
 
-    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout')->middleware('auth');
-});
 
 
 // --- 4. ROUTE FRONTEND UMUM ---
@@ -131,6 +123,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/customers', [UserController::class, 'customers'])->name('customers.index');
     Route::get('/admins', [UserController::class, 'admins'])->name('admins.index');
     Route::post('/admins', [UserController::class, 'storeAdmin'])->name('admins.store');
+    Route::put('/admins/{id}', [UserController::class, 'updateAdmin'])->name('admins.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 
     // Kelola Laporan & Pengaturan

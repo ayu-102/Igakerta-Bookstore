@@ -77,7 +77,11 @@ class CustomerAuthController extends Controller
                 'last_login_at' => Carbon::now(),
             ]);
 
-            // MENGGUNAKAN redirect()->route() AGAR SELALU PAKSABUKA DASHBOARD LOG-IN PERTAMA KALI
+            // SWITCH REDIRECT BERDASARKAN ROLE USER
+            if ($user->role === 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
+
             return redirect()->route('customer.dashboard');
         }
 

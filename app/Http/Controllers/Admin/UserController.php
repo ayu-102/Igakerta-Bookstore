@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    // --- KELOLA PELANGGAN ---
+    //KELOLA PELANGGAN
     public function customers(Request $request)
     {
         $query = User::where('role', 'customer')->latest();
@@ -28,7 +28,7 @@ class UserController extends Controller
         return view('admin.users.customers', compact('customers'));
     }
 
-    // --- KELOLA ADMIN ---
+    //KELOLA ADMIN
     public function admins(Request $request)
     {
         $query = User::where('role', 'admin')->latest();
@@ -64,6 +64,33 @@ class UserController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Admin baru berhasil ditambahkan!');
+    }
+
+    // Update Data Admin
+    public function updateAdmin(Request $request, $id)
+    {
+        $admin = User::where('role', 'admin')->findOrFail($id);
+
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users,email,' . $id,
+            'phone'    => 'nullable|string|max:20',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        $data = [
+            'name'  => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $admin->update($data);
+
+        return redirect()->back()->with('success', 'Data admin berhasil diperbarui!');
     }
 
     // Hapus Pengguna (Pelanggan / Admin)
