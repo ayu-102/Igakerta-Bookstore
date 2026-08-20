@@ -39,6 +39,7 @@ class CartController extends Controller
 
         // Penanganan nama penulis secara aman
         $authorName = is_object($book->author) ? ($book->author->name ?? 'Penulis') : ($book->author ?? 'Penulis');
+
         // Tentukan harga yang dipakai (gunakan harga diskon jika ada dan lebih murah dari harga normal)
         $finalPrice = (isset($book->discount_price) && $book->discount_price < $book->price)
             ? $book->discount_price
@@ -51,7 +52,7 @@ class CartController extends Controller
                 "title"       => $book->title,
                 "author"      => $authorName,
                 "quantity"    => 1,
-                "price"       => $finalPrice, // <-- HARGA DISKON DIPAKAI
+                "price"       => $finalPrice,
                 "cover_image" => $book->cover_image
             ];
         }
@@ -66,26 +67,49 @@ class CartController extends Controller
             'code' => 'required|string',
         ]);
 
-        // Cari voucher berdasarkan kode yang aktif
+        // 1. Cari voucher aktif
         $voucher = Voucher::where('code', $request->code)
             ->where('is_active', true)
             ->first();
 
         if (!$voucher) {
-            return back()->with('error', 'Kode voucher tidak valid atau sudah kadaluwarsa!');
+            return back()->with('error', 'Kode voucher tidak valid atau sudah tidak aktif!');
         }
 
-        // Ambil nilai nominal/diskon dari atribut model (menyesuaikan nama kolom di DB)
-        $discountValue = $voucher->discount
+        // 2. Cek Tanggal Kadaluarsa
+        if ($voucher->is_expired) {
+            return back()->with('error', 'Maaf, kode voucher ini sudah kedaluwarsa!');
+        }
+
+        // 3. Cek Limit Kuota
+        if ($voucher->usage_limit !== null && $voucher->used_count >= $voucher->usage_limit) {
+            return back()->with('error', 'Maaf, kuota penggunaan voucher ini sudah habis!');
+        }
+
+        // 4. HITUNG TOTAL BELANJA DI KERANJANG
+        $cart = session()->get('cart', []);
+        $subtotal = 0;
+        foreach ($cart as $item) {
+            $subtotal += $item['price'] * $item['quantity'];
+        }
+
+        // 5. VALIDASI MINIMAL BELANJA (MIN_PURCHASE)
+        $minPurchase = $voucher->min_purchase ?? 0;
+        if ($subtotal < $minPurchase) {
+            return back()->with('error', 'Minimal belanja untuk voucher ini adalah Rp ' . number_format($minPurchase, 0, ',', '.'));
+        }
+
+        // Ambil nilai nominal/diskon
+        $discountValue = $voucher->amount
+            ?? $voucher->discount
             ?? $voucher->nominal
             ?? $voucher->discount_amount
-            ?? $voucher->amount
             ?? 0;
 
-        // Simpan data voucher ke dalam Session
+        // Simpan data voucher ke Session
         session()->put('voucher', [
             'code'     => $voucher->code,
-            'type'     => strtolower($voucher->type ?? $voucher->discount_type ?? 'fixed'), // di-lowercase agar 'PERSENTASE' jadi 'persentase'
+            'type'     => strtolower($voucher->type ?? $voucher->discount_type ?? 'fixed'),
             'discount' => (float) $discountValue,
         ]);
 
@@ -128,13 +152,13 @@ class CartController extends Controller
         return redirect()->route('cart.index')->with('success', 'Buku dihapus dari keranjang!');
     }
 
-    // 5. Generate Link WhatsApp, Potong Stok Otomatis, & Buat Format Pesan
+    // 5. Generate Link WhatsApp & Potong Stok Otomatis
     public function checkoutWhatsApp(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string|max:100',
-            'phone' => 'required|string|max:20',
-            'alamat' => 'required|string',
+            'nama'       => 'required|string|max:100',
+            'phone'      => 'required|string|max:20',
+            'alamat'     => 'required|string',
             'pembayaran' => 'required|string',
         ]);
 
@@ -143,22 +167,31 @@ class CartController extends Controller
             return redirect()->back()->with('error', 'Keranjang Anda masih kosong!');
         }
 
-        // --- CEK DAN KURANGI STOK DI DATABASE AUTOMATIS ---
+        // Cek dan kurangi stok di database otomatis
         foreach ($cart as $id => $item) {
             $book = Book::find($id);
-            if ($book) {
-                // Kurangi stok sesuai jumlah yang dibeli (stok minimal 0 agar tidak minus)
+            if ($book && $book->type === 'physical') {
                 $book->stock = max(0, $book->stock - $item['quantity']);
                 $book->save();
             }
         }
 
-        $noAdmin = "6285124157382"; // Nomor WA Admin Iga Kerta
+        // Catat kuota voucher di DB jika ada
+        if (session()->has('voucher')) {
+            $voucherData = session('voucher');
+            $vCode = $voucherData['code'] ?? null;
+            if ($vCode) {
+                $v = Voucher::where('code', $vCode)->first();
+                if ($v) {
+                    $v->increment('used_count');
+                }
+            }
+        }
+
+        $noAdmin = "6285124157382";
         $catatan = $request->catatan ? $request->catatan : '-';
 
-        // Format Pesan WhatsApp Simpel & Rapi
         $pesan = "*HALO IGAKERTA BOOKSTORE, SAYA INGIN ORDER BUKU*\n\n";
-
         $pesan .= "*DATA PEMESANAN*\n";
         $pesan .= "• *Nama:* " . $request->nama . "\n";
         $pesan .= "• *No. WA:* " . $request->phone . "\n";
@@ -177,10 +210,8 @@ class CartController extends Controller
 
         $pesan .= "\n*TOTAL:* *Rp " . number_format($totalHarga, 0, ',', '.') . "*";
 
-        // Kosongkan keranjang belanja setelah checkout
-        session()->forget('cart');
+        session()->forget(['cart', 'voucher']);
 
-        // Redirect langsung ke WhatsApp
         $urlWhatsApp = "https://wa.me/" . $noAdmin . "?text=" . urlencode($pesan);
 
         return redirect()->away($urlWhatsApp);

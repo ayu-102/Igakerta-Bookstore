@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PointHistory; // <-- Import Model
 use Illuminate\Support\Facades\Auth;
 
+
 class MemberController extends Controller
 {
     public function index()

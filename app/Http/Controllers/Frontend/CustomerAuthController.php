@@ -17,7 +17,7 @@ use App\Models\User;
 
 class CustomerAuthController extends Controller
 {
-    // ... method login/register Anda yang sudah ada ...
+
 
     public function showLoginForm()
     {
@@ -54,6 +54,7 @@ class CustomerAuthController extends Controller
 
         return redirect()->route('login')->with('success', 'Pendaftaran berhasil! Silakan login dengan akun Anda.');
     }
+
     public function login(Request $request)
     {
         $request->validate([
@@ -105,7 +106,9 @@ class CustomerAuthController extends Controller
                 $q->where('type', 'ebook');
             })->count();
 
-        $wishlistCount = Wishlist::where('user_id', $userId)->count();
+        // FIX: Ambil dan hitung jumlah data dari Session Wishlist (Bukan Database Query)
+        $wishlist = session()->get('wishlist', []);
+        $wishlistCount = count($wishlist);
 
         $activeVouchersCount = Voucher::where('is_active', 1)
             ->where(function ($q) {
@@ -169,7 +172,7 @@ class CustomerAuthController extends Controller
 
     public function myVouchers()
     {
-        // Mengambil voucher yang sedang aktif
+        // Mengambil voucher yang sedang aktif saja
         $vouchers = \App\Models\Voucher::where('is_active', true)->get();
 
         return view('customer.promo.index', compact('vouchers'));

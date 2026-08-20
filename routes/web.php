@@ -29,7 +29,6 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MidtransCallbackController;
 use App\Http\Controllers\Customer\MemberController;
 use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
-use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\MemberController as AdminMemberController;
 
 // --- 1. ROUTE AUTHENTICATION CUSTOMER (GUEST) ---
@@ -78,9 +77,6 @@ Route::middleware('auth')->prefix('customer')->name('customer.')->group(function
 });
 
 
-
-
-
 // --- 4. ROUTE FRONTEND UMUM ---
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/katalog', [HomeController::class, 'catalog'])->name('catalog.index');
@@ -89,7 +85,8 @@ Route::get('/kontak', [ContactController::class, 'index'])->name('contact');
 
 
 // --- 5. ROUTE PANEL ADMIN ---
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
+
     Route::get('/', function () {
         return redirect()->route('admin.dashboard');
     });
@@ -147,6 +144,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::post('/member/redeem', [MemberController::class, 'redeemPoint'])->name('customer.member.redeem');
+    Route::post('/checkout/finish-payment', [CheckoutController::class, 'finishPayment'])->name('checkout.finish-payment');
 });
 
 
@@ -171,7 +170,6 @@ Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('articl
 
 
 // --- 8. ROUTE PAYMENT MIDTRANS ---
-// Menggunakan match(['get', 'post']) untuk mengakomodasi request dari Midtrans & redirect SSL hosting
 Route::match(['get', 'post'], '/midtrans/callback', [MidtransCallbackController::class, 'handle'])->name('midtrans.callback');
 
 Route::middleware('auth')->group(function () {

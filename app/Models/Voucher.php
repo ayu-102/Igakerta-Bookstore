@@ -12,11 +12,14 @@ class Voucher extends Model
 
     protected $fillable = [
         'code',
+        'user_id',
         'title',
         'description',
         'type',
         'amount',
         'min_purchase',
+        'usage_limit', // Tambahkan ini
+        'used_count',  // Tambahkan ini
         'expiry_date',
         'is_active',
     ];

@@ -28,6 +28,7 @@ class VoucherController extends Controller
             'type'         => 'required|in:fixed,percentage',
             'amount'       => 'required|numeric|min:0',
             'min_purchase' => 'required|numeric|min:0',
+            'usage_limit'  => 'nullable|integer|min:1', // Validasi batas pemakaian
             'expiry_date'  => 'nullable|date',
             'is_active'    => 'boolean',
         ]);
@@ -39,6 +40,7 @@ class VoucherController extends Controller
             'type'         => $request->type,
             'amount'       => $request->amount,
             'min_purchase' => $request->min_purchase,
+            'usage_limit'  => $request->usage_limit ?? null, // Simpan limit kuota
             'expiry_date'  => $request->expiry_date,
             'is_active'    => $request->has('is_active') ? 1 : 0,
         ]);
@@ -60,6 +62,7 @@ class VoucherController extends Controller
             'type'         => 'required|in:fixed,percentage',
             'amount'       => 'required|numeric|min:0',
             'min_purchase' => 'required|numeric|min:0',
+            'usage_limit'  => 'nullable|integer|min:1',
             'expiry_date'  => 'nullable|date',
         ]);
 
@@ -70,6 +73,7 @@ class VoucherController extends Controller
             'type'         => $request->type,
             'amount'       => $request->amount,
             'min_purchase' => $request->min_purchase,
+            'usage_limit'  => $request->usage_limit ?? null,
             'expiry_date'  => $request->expiry_date,
             'is_active'    => $request->has('is_active') ? 1 : 0,
         ]);

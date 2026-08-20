@@ -276,7 +276,7 @@
             border-radius: 10px;
         }
 
-        /* SECTION BOX (KLAIM VOUCHER & RIWAYAT) */
+        /* SECTION BOX */
         .card-box {
             background: #FFFFFF;
             border-radius: 12px;
@@ -299,73 +299,32 @@
             margin: 0;
         }
 
-        /* GRID VOUCHER POIN */
-        .reward-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        .use-points-banner {
+            background: #F8FAFC;
+            border: 1px dashed #CBD5E1;
+            border-radius: 10px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
             gap: 16px;
         }
 
-        .reward-card {
-            border: 1px dashed #CBD5E1;
-            background: #FAFAFA;
-            border-radius: 12px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: all 0.2s;
+        .use-points-banner i {
+            font-size: 2rem;
+            color: #FFC000;
         }
 
-        .reward-card:hover {
-            border-color: #23085A;
-            background: #FFFFFF;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .reward-title {
-            font-size: 0.85rem;
-            font-weight: 800;
+        .use-points-text h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
             color: #0F172A;
             margin: 0 0 4px 0;
         }
 
-        .reward-desc {
-            font-size: 0.72rem;
+        .use-points-text p {
+            font-size: 0.78rem;
             color: #64748B;
-            margin-bottom: 14px;
-        }
-
-        .reward-cost {
-            font-size: 0.8rem;
-            font-weight: 800;
-            color: #23085A;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .btn-redeem {
-            background: #23085A;
-            color: #FFFFFF;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.2s;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .btn-redeem:hover {
-            background: #1A0644;
-        }
-
-        .btn-redeem:disabled {
-            background: #94A3B8;
-            cursor: not-allowed;
+            margin: 0;
         }
 
         /* TABEL RIWAYAT POIN */
@@ -480,8 +439,8 @@
             <main>
                 <div class="page-header">
                     <h1 class="page-title">Member & Poin Saya</h1>
-                    <p class="page-subtitle">Kumpulkan poin dari setiap pembelian buku dan tukarkan dengan voucher belanja
-                        menarik!</p>
+                    <p class="page-subtitle">Kumpulkan poin dari setiap pembelian buku dan gunakan sebagai potongan belanja
+                        saat checkout!</p>
                 </div>
 
                 <!-- TAMPILAN KARTU MEMBER DIGITAL & DOKUMEN STATUS -->
@@ -544,59 +503,15 @@
                     </div>
                 </div>
 
-                <!-- PENUKARAN POIN DENGAN VOUCHER -->
+                <!-- CARA PENGGUNAAN POIN BANNER -->
                 <div class="card-box">
-                    <div class="card-box-header">
-                        <h3 class="card-box-title">Tukarkan Poin dengan Voucher</h3>
-                    </div>
-
-                    <div class="reward-grid">
-                        <!-- Pilihan Reward 1 (Diskon 10rb = 20 Poin) -->
-                        <div class="reward-card">
-                            <div>
-                                <h5 class="reward-title">Diskon Potongan Rp 10.000</h5>
-                                <p class="reward-desc">Berlaku untuk semua pembelian buku cetak tanpa minimal belanja.</p>
-                            </div>
-                            <div>
-                                <div class="reward-cost">
-                                    <i class="fa-solid fa-coins" style="color: #FFC000;"></i> 20 Poin
-                                </div>
-                                <button class="btn-redeem" {{ (Auth::user()->points ?? 0) < 20 ? 'disabled' : '' }}>
-                                    {{ (Auth::user()->points ?? 0) < 20 ? 'Poin Tidak Cukup' : 'Tukar Poin' }}
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Pilihan Reward 2 (Diskon 25rb = 50 Poin) -->
-                        <div class="reward-card">
-                            <div>
-                                <h5 class="reward-title">Diskon Potongan Rp 25.000</h5>
-                                <p class="reward-desc">Minimal belanja Rp 100.000 untuk buku cetak & ebook.</p>
-                            </div>
-                            <div>
-                                <div class="reward-cost">
-                                    <i class="fa-solid fa-coins" style="color: #FFC000;"></i> 50 Poin
-                                </div>
-                                <button class="btn-redeem" {{ (Auth::user()->points ?? 0) < 50 ? 'disabled' : '' }}>
-                                    {{ (Auth::user()->points ?? 0) < 50 ? 'Poin Tidak Cukup' : 'Tukar Poin' }}
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Pilihan Reward 3 (Gratis Ongkir 15rb = 30 Poin) -->
-                        <div class="reward-card">
-                            <div>
-                                <h5 class="reward-title">Voucher Gratis Ongkir Rp 15.000</h5>
-                                <p class="reward-desc">Potongan ongkir hingga Rp 15.000 ke seluruh Indonesia.</p>
-                            </div>
-                            <div>
-                                <div class="reward-cost">
-                                    <i class="fa-solid fa-coins" style="color: #FFC000;"></i> 30 Poin
-                                </div>
-                                <button class="btn-redeem" {{ (Auth::user()->points ?? 0) < 30 ? 'disabled' : '' }}>
-                                    {{ (Auth::user()->points ?? 0) < 30 ? 'Poin Tidak Cukup' : 'Tukar Poin' }}
-                                </button>
-                            </div>
+                    <div class="use-points-banner">
+                        <i class="fa-solid fa-coins"></i>
+                        <div class="use-points-text">
+                            <h4>Gunakan Poin Langsung Saat Checkout</h4>
+                            <p>Anda tidak perlu menukar voucher secara manual. Cukup centang opsi <strong>"Gunakan
+                                    Poin"</strong> saat halaman checkout untuk mendapatkan potongan harga secara otomatis.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -640,7 +555,8 @@
                                     <td>{{ date('d M Y') }}</td>
                                     <td>Bonus Poin Registrasi Akun Baru</td>
                                     <td><span class="badge-plus">Perolehan</span></td>
-                                    <td style="text-align: right;" class="badge-plus">+{{ Auth::user()->points ?? 0 }} Pts
+                                    <td style="text-align: right;" class="badge-plus">
+                                        +{{ Auth::user()->points ?? 0 }} Pts
                                     </td>
                                 </tr>
                             @endforelse

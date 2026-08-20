@@ -634,7 +634,6 @@
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
-    <!-- SCRIPT AUTO-FIX PERBAIKAN URL GAMBAR -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // Otomatis memperbaiki semua gambar di halaman yang salah memanggil folder /storage/images/

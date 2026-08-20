@@ -672,7 +672,28 @@
                             // Triggers Midtrans Snap Popup
                             snap.pay(data.snap_token, {
                                 onSuccess: function(result) {
-                                    window.location.href = "{{ route('home') }}";
+                                    // PANGGIL ENDPOINT FINISH PAYMENT AGAR POIN SANGAT INSTAN BERTAMBAH
+                                    fetch("{{ route('checkout.finish-payment') }}", {
+                                            method: "POST",
+                                            headers: {
+                                                "Content-Type": "application/json",
+                                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                                            },
+                                            body: JSON.stringify({
+                                                order_number: result.order_id,
+                                                payment_type: result
+                                                    .payment_type
+                                            })
+                                        })
+                                        .then(res => res.json())
+                                        .then(finishRes => {
+                                            window.location.href =
+                                                "{{ route('home') }}?status=success";
+                                        })
+                                        .catch(err => {
+                                            window.location.href =
+                                                "{{ route('home') }}";
+                                        });
                                 },
                                 onPending: function(result) {
                                     window.location.href = "{{ route('home') }}";
@@ -682,8 +703,7 @@
                                 },
                                 onClose: function() {
                                     alert(
-                                        "Pop-up pembayaran ditutup sebelum transaksi selesai."
-                                    );
+                                        "Pop-up pembayaran ditutup sebelum transaksi selesai.");
                                     window.location.href = "{{ route('home') }}";
                                 }
                             });

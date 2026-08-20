@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\User;
+use App\Models\PointHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -108,6 +110,63 @@ class CheckoutController extends Controller
         ));
     }
 
+
+    public function finishPayment(Request $request)
+    {
+        $request->validate([
+            'order_number' => 'required|string',
+        ]);
+
+        $order = Order::with('items')->where('order_number', $request->order_number)->first();
+
+        if (!$order) {
+            return response()->json(['status' => 'error', 'message' => 'Pesanan tidak ditemukan'], 404);
+        }
+
+        // Eksekusi penambahan poin jika order belum pernah diproses (mencegah double point)
+        if ($order->status !== 'completed' && $order->status !== 'paid') {
+
+            // Cek jenis buku (ebook vs fisik)
+            $isAllEbook = true;
+            foreach ($order->items as $item) {
+                $book = Book::find($item->book_id);
+                if ($book && $book->type !== 'ebook') {
+                    $isAllEbook = false;
+                    break;
+                }
+            }
+
+            // Set status pesanan
+            $order->status = $isAllEbook ? 'completed' : 'paid';
+            if ($request->filled('payment_type')) {
+                $order->payment_method = strtoupper((string) $request->payment_type);
+            }
+            $order->save();
+
+            // TAMBAHKAN POIN OTOMATIS KE MEMBER
+            if ($order->user_id && $order->points_earned > 0) {
+                $user = User::find($order->user_id);
+                if ($user) {
+                    // 1. Tambahkan saldo poin user
+                    $user->increment('points', $order->points_earned);
+
+                    // 2. Catat di riwayat poin
+                    PointHistory::create([
+                        'user_id' => $user->id,
+                        'title'   => 'Poin Pembelian Pesanan #' . $order->order_number,
+                        'type'    => 'earned',
+                        'points'  => $order->points_earned,
+                    ]);
+                }
+            }
+        }
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Pembayaran berhasil dikonfirmasi dan poin telah ditambahkan!'
+        ]);
+    }
+
     public function process(Request $request)
     {
         $request->validate([
@@ -186,6 +245,19 @@ class CheckoutController extends Controller
             'status'          => 'pending',
         ]);
 
+        // --- PROSES POTONG KUOTA VOUCHER DI DATABASE ---
+        if (session()->has('voucher')) {
+            $voucherData = session('voucher');
+            $voucherCode = $voucherData['code'] ?? null;
+
+            if ($voucherCode) {
+                $voucher = \App\Models\Voucher::where('code', $voucherCode)->first();
+                if ($voucher) {
+                    $voucher->increment('used_count'); // Tambah jumlah pemakaian di database
+                }
+            }
+        }
+
         // Potong Poin User Jika Digunakan
         if ($pointsUsed > 0 && Auth::check()) {
             $user = \App\Models\User::find(Auth::id());
@@ -215,9 +287,9 @@ class CheckoutController extends Controller
             ]);
 
             $book = Book::find($bookId);
-            if ($book) {
-                $book->stock = max(0, $book->stock - $item['quantity']);
-                $book->save();
+            if ($book && $book->type === 'physical') {
+                // Hanya kurangi stok jika buku fisik
+                $book->decrement('stock', $item['quantity']);
             }
 
             $itemDetails[] = [

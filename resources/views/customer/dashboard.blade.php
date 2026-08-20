@@ -709,11 +709,39 @@
                             </div>
 
                             @forelse($latestOrders as $order)
-                                @php $firstItem = $order->items->first(); @endphp
+                                @php
+                                    $firstItem = $order->items->first();
+                                    $book = $firstItem ? $firstItem->book : null;
+                                    $coverPath = $book->cover_image ?? ($firstItem->cover_image ?? null);
+
+                                    // Auto helper path gambar
+                                    if ($coverPath) {
+                                        if (Str::startsWith($coverPath, 'http')) {
+                                            $imgUrl = $coverPath;
+                                        } elseif (Str::startsWith($coverPath, 'storage/')) {
+                                            $imgUrl = asset($coverPath);
+                                        } elseif (Str::startsWith($coverPath, 'images/')) {
+                                            $imgUrl = asset($coverPath);
+                                        } else {
+                                            $imgUrl = asset('storage/' . $coverPath);
+                                        }
+                                    } else {
+                                        $imgUrl = null;
+                                    }
+                                @endphp
                                 <div class="order-item">
                                     <div class="order-book-details">
-                                        <img src="{{ $firstItem && $firstItem->book && $firstItem->book->cover_image ? asset('storage/' . $firstItem->book->cover_image) : 'https://placehold.co/100x140/23085A/FFFFFF/png?text=Buku' }}"
-                                            class="order-book-cover" alt="Cover">
+                                        @if ($imgUrl)
+                                            <img src="{{ $imgUrl }}" class="order-book-cover"
+                                                alt="{{ $firstItem->book_title ?? 'Cover Buku' }}"
+                                                onerror="this.onerror=null; this.src='https://placehold.co/120x160/23085A/FFFFFF/png?text=Buku';">
+                                        @else
+                                            <div class="order-book-cover"
+                                                style="display: flex; align-items: center; justify-content: center; background: #23085A; color: white; font-size: 0.7rem; font-weight: bold;">
+                                                Buku
+                                            </div>
+                                        @endif
+
                                         <div class="order-book-info">
                                             <div class="order-book-title-wrapper">
                                                 <h4>{{ $firstItem ? $firstItem->book_title : 'Pesanan #' . $order->order_number }}
@@ -721,8 +749,7 @@
                                                 <span
                                                     class="status-badge badge-{{ strtolower($order->status) }}">{{ $order->status }}</span>
                                             </div>
-                                            <p>{{ $firstItem && $firstItem->book && $firstItem->book->author ? $firstItem->book->author->name : 'IGAKERTA' }}
-                                            </p>
+                                            <p>{{ $book && $book->author ? $book->author->name : 'IGAKERTA' }}</p>
                                             <div class="order-meta">No. Pesanan: {{ $order->order_number }} &bull;
                                                 {{ $order->created_at->format('d M Y') }}</div>
                                         </div>
@@ -730,7 +757,8 @@
                                     <div class="order-right">
                                         <div class="order-price">Rp {{ number_format($order->grand_total, 0, ',', '.') }}
                                         </div>
-                                        <a href="#" class="btn-detail">Lihat Detail</a>
+                                        <a href="{{ route('customer.orders.show', $order->id) }}" class="btn-detail">Lihat
+                                            Detail</a>
                                     </div>
                                 </div>
                             @empty
@@ -793,17 +821,32 @@
                             <div class="recommendation-grid">
                                 @foreach ($recommendedBooks as $book)
                                     @php
-                                        // Mencegah perbedaan harga dengan kalkulasi diskon
                                         $hasDiscount = isset($book->discount) && $book->discount > 0;
                                         $finalPrice = $hasDiscount
                                             ? $book->price - $book->price * ($book->discount / 100)
                                             : $book->discount_price ?? $book->price;
+
+                                        // Auto helper path gambar
+                                        $recCover = $book->cover_image;
+                                        if ($recCover) {
+                                            if (Str::startsWith($recCover, 'http')) {
+                                                $recImgUrl = $recCover;
+                                            } elseif (Str::startsWith($recCover, 'storage/')) {
+                                                $recImgUrl = asset($recCover);
+                                            } elseif (Str::startsWith($recCover, 'images/')) {
+                                                $recImgUrl = asset($recCover);
+                                            } else {
+                                                $recImgUrl = asset('storage/' . $recCover);
+                                            }
+                                        } else {
+                                            $recImgUrl = 'https://placehold.co/120x160/23085A/FFFFFF/png?text=Buku';
+                                        }
                                     @endphp
                                     <div class="book-card-mini">
                                         <a href="{{ route('books.show', $book->id) }}"
                                             style="text-decoration: none; color: inherit;">
-                                            <img src="{{ $book->cover_image ? asset('storage/' . $book->cover_image) : 'https://placehold.co/120x160/23085A/FFFFFF/png?text=Buku' }}"
-                                                alt="{{ $book->title }}">
+                                            <img src="{{ $recImgUrl }}" alt="{{ $book->title }}"
+                                                onerror="this.onerror=null; this.src='https://placehold.co/120x160/23085A/FFFFFF/png?text=Buku';">
                                             <h5>{{ $book->title }}</h5>
 
                                             <div class="price">
